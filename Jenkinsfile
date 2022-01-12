@@ -7,7 +7,7 @@ pipeline {
         EB_APP_NAME = "project-fibonacci-app"
         AWS_ACCESS_KEY_ID = credentials('jenkins-aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws-access-key')
-        AWS_S3_BUCKET_NAME = 'project-fibonacci'
+        AWS_S3_BUCKET_NAME = 'project-fibonacci-app'
         ARTIFACT_NAME = 'docker-compose.yml'
     }
     options{

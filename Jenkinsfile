@@ -2,7 +2,7 @@ pipeline {
     agent {label 'linux'}
     environment{
         DOCKER_HUB_ACCESS_KEY = credentials('docker-hub-pkur1-access-key')
-        EB_APP_VERSION = ${BUILD_NUMBER}
+        EB_APP_VERSION = "${BUILD_NUMBER}"
         EB_APP_ENVIRONMENT_NAME = "project-fibonacci-env"
         EB_APP_NAME = "project-fibonacci-app"
         AWS_ACCESS_KEY_ID = credentials('jenkins-aws-access-key-id')

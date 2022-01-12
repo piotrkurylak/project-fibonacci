@@ -1,0 +1,36 @@
+version: '3.3'
+services:
+## NGINX
+  nginx:
+    hostname: nginx
+    image: pkur1/project-fibonacci-nginx:${BUILD_NUMBER} ## create tags strategy
+    ports: 
+      - "80:80"
+    mem_limit: 256m
+## NGINX WITH REACT
+  client:
+    hostname: client
+    image: pkur1/project-fibonacci-client:${BUILD_NUMBER}
+    mem_limit: 256m
+  ## EXPRESSJS
+  api:
+    hostname: api
+    image: pkur1/project-fibonacci-api:${BUILD_NUMBER}
+    environment:
+      - REDIS_HOST=$REDIS_HOST
+      - REDIS_PORT=$REDIS_PORT
+      - PG_HOST=$PG_HOST
+      - PG_PORT=$PG_PORT
+      - PG_DATABASE=$PG_DATABASE
+      - PG_USER=$PG_USER
+      - PG_PASSWORD=$PG_PASSWORD
+    mem_limit: 256m
+  ## WORKER
+  worker:
+    hostname: worker
+    image: pkur1/project-fibonacci-worker:${BUILD_NUMBER}
+    environment:
+      - REDIS_HOST=$REDIS_HOST
+      - REDIS_PORT=$REDIS_PORT
+    mem_limit: 256m
+

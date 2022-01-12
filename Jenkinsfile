@@ -2,7 +2,7 @@ pipeline {
     agent {label 'linux'}
     environment{
         DOCKER_HUB_ACCESS_KEY = credentials('docker-hub-pkur1-access-key')
-        EB_APP_VERSION = ${BUILD_NUMBER}
+        EB_APP_VERSION = "${BUILD_NUMBER}"
         EB_APP_ENVIRONMENT_NAME = "project-fibonacci-env"
         EB_APP_NAME = "project-fibonacci-app"
         AWS_ACCESS_KEY_ID = credentials('jenkins-aws-access-key-id')
@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Run react tests'){
             steps{
-                sh 'docker run -e CI=true pkur1/project-fibonacci-react-tests npm run test'
+                sh 'docker run -e CI=true pkur1/project-fibonacci-react-tests:${BUILD_NUMBER} npm run test'
         }
         }
         stage('Build prod images'){

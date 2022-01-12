@@ -28,7 +28,7 @@ pipeline {
             steps{
                 sh '''
                     docker build -t pkur1/project-fibonacci-client:${BUILD_NUMBER} ./client
-                    docker build -t pkur1/project-fibonacci-api:${BUILD_NUMBER} ./api
+                    docker build -t pkur1/project-fibonacci-server:${BUILD_NUMBER} ./server
                     docker build -t pkur1/project-fibonacci-worker:${BUILD_NUMBER} ./worker
                     docker build -t pkur1/project-fibonacci-nginx:${BUILD_NUMBER} ./nginx
                 '''
@@ -43,7 +43,7 @@ pipeline {
             steps{
                 sh '''
                     docker push pkur1/project-fibonacci-client:${BUILD_NUMBER}
-                    docker push pkur1/project-fibonacci-api:${BUILD_NUMBER}
+                    docker push pkur1/project-fibonacci-server:${BUILD_NUMBER}
                     docker push pkur1/project-fibonacci-worker:${BUILD_NUMBER}
                     docker push pkur1/project-fibonacci-nginx:${BUILD_NUMBER}
                 '''

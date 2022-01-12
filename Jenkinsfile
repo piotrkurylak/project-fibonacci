@@ -25,7 +25,7 @@ pipeline {
         }
         }
         stage('Build prod images'){
-            steps{.
+            steps{
                 sh '''
                     docker build -t pkur1/project-fibonacci-client:${BUILD_NUMBER} ./client
                     docker build -t pkur1/project-fibonacci-api:${BUILD_NUMBER} ./api

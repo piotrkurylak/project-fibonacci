@@ -9,6 +9,7 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws-access-key')
         AWS_S3_BUCKET_NAME = 'project-fibonacci-app'
         ARTIFACT_NAME = 'docker-compose.yml'
+        AWS_DEFAULT_REGION = 'eu-west-1'
     }
     options{
         buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '30'))

@@ -1,31 +1,29 @@
 pipeline {
     agent {label 'linux'}
-    environment{
-        DOCKER_HUB_ACCESS_KEY = credentials('docker-hub-pkur1-access-key')
-        EB_APP_VERSION = "${BUILD_NUMBER}"
-        EB_APP_ENVIRONMENT_NAME = "project-fibonacci-env"
-        EB_APP_NAME = "project-fibonacci-app"
-        AWS_ACCESS_KEY_ID = credentials('jenkins-aws-access-key-id')
-        AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws-access-key')
-        AWS_S3_BUCKET_NAME = 'project-fibonacci-app'
-        ARTIFACT_NAME = 'docker-compose.yml'
-        AWS_DEFAULT_REGION = 'eu-west-1'
-    }
     options{
         buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '30'))
     }
     stages{
         stage('Build react image for tests'){
+            options{
+                timeout(time: 5, unit: "MINUTES")
+            }
             steps{
                 sh 'docker build -t pkur1/project-fibonacci-react-tests:${BUILD_NUMBER} -f ./client/Dockerfile.dev ./client'
             }
         }
         stage('Run react tests'){
+            options{
+                timeout(time: 2, unit: "MINUTES")
+            }
             steps{
                 sh 'docker run -e CI=true pkur1/project-fibonacci-react-tests:${BUILD_NUMBER} npm run test'
         }
         }
         stage('Build prod images'){
+            options{
+                timeout(time: 5, unit: "MINUTES")
+            }
             steps{
                 sh '''
                     docker build -t pkur1/project-fibonacci-client:${BUILD_NUMBER} ./client
@@ -36,11 +34,20 @@ pipeline {
             }
         }
         stage('Login to Docker Hub'){
+            environment{
+                DOCKER_HUB_ACCESS_KEY = credentials('docker-hub-pkur1-access-key')
+            }
+            options{
+                timeout(time: 2, unit: "MINUTES")
+            }
             steps{
                 sh 'echo ${DOCKER_HUB_ACCESS_KEY} | docker login -u pkur1 --password-stdin'
             }
         }
         stage('Push images to Docker Hub'){
+            options{
+                timeout(time: 5, unit: "MINUTES")
+            }
             steps{
                 sh '''
                     docker push pkur1/project-fibonacci-client:${BUILD_NUMBER}
@@ -51,14 +58,28 @@ pipeline {
             }
         }
         stage('Deploy to production'){
+            environment{
+                EB_APP_VERSION = "${BUILD_NUMBER}"
+                EB_APP_ENVIRONMENT_NAME = "project-fibonacci-env"
+                EB_APP_NAME = "project-fibonacci-app"
+                AWS_ACCESS_KEY_ID = credentials('jenkins-aws-access-key-id')
+                AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws-access-key')
+                AWS_S3_BUCKET_NAME = 'project-fibonacci-app'
+                ARTIFACT_NAME = 'docker-compose.yml'
+                AWS_DEFAULT_REGION = 'eu-west-1'
+            }
+            options{
+                timeout(time: 10, unit: "MINUTES")
+            }
             steps{
                 sh '''
                     aws s3 cp /home/admin/jenkins/workspace/Project_Fibonacci_dev/${ARTIFACT_NAME} s3://${AWS_S3_BUCKET_NAME}/${ARTIFACT_NAME}
-                    aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label project-fibonacci-version
+                    aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label project-fibonacci-version-${EB_APP_VERSION}
                 '''
             }
         }
     }
+    ## ADD mail notification.
     post{
         always{
         sh 'docker logout'

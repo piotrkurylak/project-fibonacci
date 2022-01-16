@@ -9,7 +9,7 @@ pipeline {
                 timeout(time: 5, unit: "MINUTES")
             }
             steps{
-                sh 'docker build -t pkur1/project-fibonacci-react-tests:${BUILD_NUMBER} -f ./client/Dockerfile.dev ./client'
+                sh 'docker build -t pkur1/project-fibonacci-react-tests:latest -f ./client/Dockerfile.dev ./client'
             }
         }
         stage('Run react tests'){
@@ -17,7 +17,7 @@ pipeline {
                 timeout(time: 2, unit: "MINUTES")
             }
             steps{
-                sh 'docker run -e CI=true pkur1/project-fibonacci-react-tests:${BUILD_NUMBER} npm run test'
+                sh 'docker run -e CI=true pkur1/project-fibonacci-react-tests:latest npm run test'
         }
         }
         stage('Build prod images'){
@@ -26,10 +26,10 @@ pipeline {
             }
             steps{
                 sh '''
-                    docker build -t pkur1/project-fibonacci-client:${BUILD_NUMBER} ./client
-                    docker build -t pkur1/project-fibonacci-api:${BUILD_NUMBER} ./server
-                    docker build -t pkur1/project-fibonacci-worker:${BUILD_NUMBER} ./worker
-                    docker build -t pkur1/project-fibonacci-nginx:${BUILD_NUMBER} ./nginx
+                    docker build -t pkur1/project-fibonacci-client:latest ./client
+                    docker build -t pkur1/project-fibonacci-api:latest ./server
+                    docker build -t pkur1/project-fibonacci-worker:latest ./worker
+                    docker build -t pkur1/project-fibonacci-nginx:latest ./nginx
                 '''
             }
         }
@@ -50,16 +50,16 @@ pipeline {
             }
             steps{
                 sh '''
-                    docker push pkur1/project-fibonacci-client:${BUILD_NUMBER}
-                    docker push pkur1/project-fibonacci-api:${BUILD_NUMBER}
-                    docker push pkur1/project-fibonacci-worker:${BUILD_NUMBER}
-                    docker push pkur1/project-fibonacci-nginx:${BUILD_NUMBER}
+                    docker push pkur1/project-fibonacci-client:latest
+                    docker push pkur1/project-fibonacci-api:latest
+                    docker push pkur1/project-fibonacci-worker:latest
+                    docker push pkur1/project-fibonacci-nginx:latest
                 '''
             }
         }
         stage('Deploy to production'){
             environment{
-                EB_APP_VERSION = "${BUILD_NUMBER}"
+                EB_APP_VERSION = "latest"
                 EB_APP_ENVIRONMENT_NAME = "project-fibonacci-env"
                 EB_APP_NAME = "project-fibonacci-app"
                 AWS_ACCESS_KEY_ID = credentials('jenkins-aws-access-key-id')
@@ -73,7 +73,7 @@ pipeline {
             }
             steps{
                 sh '''
-                    aws s3 cp /home/admin/jenkins/workspace/Project_Fibonacci_dev/${ARTIFACT_NAME} s3://${AWS_S3_BUCKET_NAME}/${ARTIFACT_NAME}
+                    aws s3 cp /home/admin/jenkins/workspace/Project_Fibonacci_dev/${ARTIFACT_NAME} s3://${AWS_S3_BUCKET_NAME}/app/${ARTIFACT_NAME}
                     aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label project-fibonacci-version-1
                 '''
             }

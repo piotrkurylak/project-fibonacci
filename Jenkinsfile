@@ -79,7 +79,6 @@ pipeline {
             }
         }
     }
-    ## ADD mail notification.
     post{
         always{
         sh 'docker logout'

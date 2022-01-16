@@ -59,7 +59,7 @@ pipeline {
         }
         stage('Deploy to production'){
             environment{
-                EB_APP_VERSION = "latest"
+                EB_APP_VERSION = "${BUILD_NUMBER}"
                 EB_APP_ENVIRONMENT_NAME = "project-fibonacci-env"
                 EB_APP_NAME = "project-fibonacci-app"
                 AWS_ACCESS_KEY_ID = credentials('jenkins-aws-access-key-id')
@@ -74,7 +74,8 @@ pipeline {
             steps{
                 sh '''
                     aws s3 cp /home/admin/jenkins/workspace/Project_Fibonacci_dev/${ARTIFACT_NAME} s3://${AWS_S3_BUCKET_NAME}/app/${ARTIFACT_NAME}
-                    aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label project-fibonacci-version-1
+                    aws elasticbeanstalk create-application-version --application-name ${EB_APP_NAME} --version-label $EB_APP_VERSION --source-bundle S3Bucket=$AWS_S3_BUCKET_NAME,S3Key=/app/$ARTIFACT_NAME
+                    aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label EB_APP_VERSION
                 '''
             }
         }

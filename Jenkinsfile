@@ -75,7 +75,7 @@ pipeline {
                 sh '''
                     aws s3 cp /home/admin/jenkins/workspace/Project_Fibonacci_dev/${ARTIFACT_NAME} s3://${AWS_S3_BUCKET_NAME}/${ARTIFACT_NAME}
                     aws elasticbeanstalk create-application-version --application-name ${EB_APP_NAME} --version-label $EB_APP_VERSION --source-bundle S3Bucket=$AWS_S3_BUCKET_NAME,S3Key=$ARTIFACT_NAME
-                    aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label EB_APP_VERSION
+                    aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label $EB_APP_VERSION
                 '''
             }
         }

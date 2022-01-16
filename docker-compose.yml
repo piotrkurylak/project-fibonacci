@@ -3,19 +3,19 @@ services:
 ## NGINX
   nginx:
     hostname: nginx
-    image: pkur1/project-fibonacci-nginx:${BUILD_NUMBER} ## create tags strategy
+    image: pkur1/project-fibonacci-nginx:latest ## create tags strategy
     ports: 
       - "80:80"
     mem_limit: 256m
 ## NGINX WITH REACT
   client:
     hostname: client
-    image: pkur1/project-fibonacci-client:${BUILD_NUMBER}
+    image: pkur1/project-fibonacci-client:latest
     mem_limit: 256m
   ## EXPRESSJS
   api:
     hostname: api
-    image: pkur1/project-fibonacci-api:${BUILD_NUMBER}
+    image: pkur1/project-fibonacci-api:latest
     environment:
       - REDIS_HOST=$REDIS_HOST
       - REDIS_PORT=$REDIS_PORT
@@ -28,7 +28,7 @@ services:
   ## WORKER
   worker:
     hostname: worker
-    image: pkur1/project-fibonacci-worker:${BUILD_NUMBER}
+    image: pkur1/project-fibonacci-worker:latest
     environment:
       - REDIS_HOST=$REDIS_HOST
       - REDIS_PORT=$REDIS_PORT

@@ -25,7 +25,7 @@ pipeline {
         }
         stage('Build prod images'){
             options{
-                timeout(time: 5, unit: "MINUTES")
+                timeout(time: 10, unit: "MINUTES")
             }
             steps{
                 sh '''
@@ -60,6 +60,20 @@ pipeline {
                 '''
             }
         }
+        stage('Deploy to staging & run smoke tests'){
+            steps{
+                sh '''
+                    echo "Deployed to staging."
+                    echo "Running smoke tests.."
+                '''
+            }
+        }
+        stage('Sanity tests'){
+            steps{
+                sh 'echo "Running sanity tests"'
+                input "Is it ready for production?"
+            }
+        }
         stage('Deploy to production'){
             environment{
                 EB_APP_ENVIRONMENT_NAME = "project-fibonacci-env"
@@ -85,9 +99,6 @@ pipeline {
     post{
         always{
             sh 'docker logout'
-                mail to: '${MAIL}',
-                    subject: "Success on build: ${env.BUILD_NUMBER}",
-                    body: "Great, new build has been aplied corretly."
         }
         failure {
             mail to: '${MAIL}',

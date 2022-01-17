@@ -9,7 +9,7 @@ pipeline {
                 timeout(time: 5, unit: "MINUTES")
             }
             steps{
-                sh 'docker build -t pkur1/project-fibonacci-react-tests:latest -f ./client/Dockerfile.dev ./client'
+                sh 'docker build -t pkur1/project-fibonacci-react-tests:${BUILD_NUMBER} -f ./client/Dockerfile.dev ./client'
             }
         }
         stage('Run react tests'){
@@ -17,7 +17,7 @@ pipeline {
                 timeout(time: 2, unit: "MINUTES")
             }
             steps{
-                sh 'docker run -e CI=true pkur1/project-fibonacci-react-tests:latest npm run test'
+                sh 'docker run -e CI=true pkur1/project-fibonacci-react-tests:${BUILD_NUMBER} npm run test'
         }
         }
         stage('Build prod images'){
@@ -26,10 +26,10 @@ pipeline {
             }
             steps{
                 sh '''
-                    docker build -t pkur1/project-fibonacci-client:latest ./client
-                    docker build -t pkur1/project-fibonacci-api:latest ./server
-                    docker build -t pkur1/project-fibonacci-worker:latest ./worker
-                    docker build -t pkur1/project-fibonacci-nginx:latest ./nginx
+                    docker build -t pkur1/project-fibonacci-client:${BUILD_NUMBER} ./client
+                    docker build -t pkur1/project-fibonacci-api:${BUILD_NUMBER} ./server
+                    docker build -t pkur1/project-fibonacci-worker:${BUILD_NUMBER} ./worker
+                    docker build -t pkur1/project-fibonacci-nginx:${BUILD_NUMBER} ./nginx
                 '''
             }
         }
@@ -50,10 +50,10 @@ pipeline {
             }
             steps{
                 sh '''
-                    docker push pkur1/project-fibonacci-client:latest
-                    docker push pkur1/project-fibonacci-api:latest
-                    docker push pkur1/project-fibonacci-worker:latest
-                    docker push pkur1/project-fibonacci-nginx:latest
+                    docker push pkur1/project-fibonacci-client:${BUILD_NUMBER}
+                    docker push pkur1/project-fibonacci-api:${BUILD_NUMBER}
+                    docker push pkur1/project-fibonacci-worker:${BUILD_NUMBER}
+                    docker push pkur1/project-fibonacci-nginx:${BUILD_NUMBER}
                 '''
             }
         }

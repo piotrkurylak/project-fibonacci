@@ -110,8 +110,9 @@ pipeline {
     }
     post{
         always{
-            node ('linux')
+            node ('linux'){
             sh 'docker logout'
+            }
         }
         failure {
             mail to: '${MAIL}',

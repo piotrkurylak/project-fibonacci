@@ -59,13 +59,12 @@ pipeline {
         }
         stage('Deploy to production'){
             environment{
-                EB_APP_VERSION = "${BUILD_NUMBER}"
                 EB_APP_ENVIRONMENT_NAME = "project-fibonacci-env"
                 EB_APP_NAME = "project-fibonacci-app"
                 AWS_ACCESS_KEY_ID = credentials('jenkins-aws-access-key-id')
                 AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws-access-key')
                 AWS_S3_BUCKET_NAME = 'project-fibonacci-app'
-                ARTIFACT_NAME = 'docker-compose.yml'
+                ENTRYPOINT = 'docker-compose.yml'
                 AWS_DEFAULT_REGION = 'eu-west-1'
             }
             options{
@@ -73,16 +72,24 @@ pipeline {
             }
             steps{
                 sh '''
-                    aws s3 cp /home/admin/jenkins/workspace/Project_Fibonacci_dev/${ARTIFACT_NAME} s3://${AWS_S3_BUCKET_NAME}/${ARTIFACT_NAME}
-                    aws elasticbeanstalk create-application-version --application-name ${EB_APP_NAME} --version-label $EB_APP_VERSION --source-bundle S3Bucket=$AWS_S3_BUCKET_NAME,S3Key=$ARTIFACT_NAME
-                    aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label $EB_APP_VERSION
+                    aws s3 cp /home/admin/jenkins/workspace/Project_Fibonacci_dev/${ENTRYPOINT} s3://${AWS_S3_BUCKET_NAME}/${ENTRYPOINT}
+                    aws elasticbeanstalk create-application-version --application-name ${EB_APP_NAME} --version-label $BUILD_NUMBER --source-bundle S3Bucket=$AWS_S3_BUCKET_NAME,S3Key=$ENTRYPOINT
+                    aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label $BUILD_NUMBER
                 '''
             }
         }
     }
     post{
         always{
-        sh 'docker logout'
+            sh 'docker logout'
         }
+        failure {
+            environment{
+                MAIL = credentials('jenkins-notifications')
+            }
+            mail to: '${MAIL}',
+                subject: "Failure on build: ${env.BUILD_NUMBER}",
+                body: "I am sorry, something went wrong, check ${env.BUILD_URL}"
+    }
     }
 }

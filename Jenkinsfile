@@ -3,6 +3,9 @@ pipeline {
     options{
         buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '30'))
     }
+    environment{
+        MAIL = credentials('jenkins-notifications')
+    }
     stages{
         stage('Build react image for tests'){
             options{
@@ -80,9 +83,6 @@ pipeline {
         }
     }
     post{
-        environment{
-            MAIL = credentials('jenkins-notifications')
-        }
         always{
             sh 'docker logout'
         }

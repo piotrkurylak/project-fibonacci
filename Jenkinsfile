@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'linux'}
+    agent none
     options{
         buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '30'))
     }
@@ -8,6 +8,7 @@ pipeline {
     }
     stages{
         stage('Build react image for tests'){
+            agent {label 'linux'}
             options{
                 timeout(time: 5, unit: "MINUTES")
             }
@@ -16,6 +17,7 @@ pipeline {
             }
         }
         stage('Run react tests'){
+            agent {label 'linux'}
             options{
                 timeout(time: 2, unit: "MINUTES")
             }
@@ -24,6 +26,7 @@ pipeline {
         }
         }
         stage('Build prod images'){
+            agent {label 'linux'}
             options{
                 timeout(time: 10, unit: "MINUTES")
             }
@@ -37,6 +40,7 @@ pipeline {
             }
         }
         stage('Login to Docker Hub'){
+            agent {label 'linux'}
             environment{
                 DOCKER_HUB_ACCESS_KEY = credentials('docker-hub-pkur1-access-key')
             }
@@ -48,6 +52,7 @@ pipeline {
             }
         }
         stage('Push images to Docker Hub'){
+            agent {label 'linux'}
             options{
                 timeout(time: 5, unit: "MINUTES")
             }
@@ -61,6 +66,7 @@ pipeline {
             }
         }
         stage('Deploy to staging & run smoke tests'){
+            agent {label 'linux'}
             steps{
                 sh '''
                     echo "Deployed to staging."
@@ -69,12 +75,16 @@ pipeline {
             }
         }
         stage('Sanity tests'){
+            agent {label 'linux'}
             steps{
                 sh 'echo "Running sanity tests"'
-                input "Is it ready for production?"
             }
         }
+        stage('Ready for production?'){
+            input(message: "Is it ready for production?", ok: "Go go go")
+        }
         stage('Deploy to production'){
+            agent {label 'linux'}
             environment{
                 EB_APP_ENVIRONMENT_NAME = "project-fibonacci-env"
                 EB_APP_NAME = "project-fibonacci-app"

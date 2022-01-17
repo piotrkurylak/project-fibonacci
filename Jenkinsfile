@@ -110,7 +110,7 @@ pipeline {
     }
     post{
         always{
-            agent {label 'linux'}
+            node {'linux'}
             sh 'docker logout'
         }
         failure {

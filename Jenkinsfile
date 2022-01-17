@@ -81,7 +81,9 @@ pipeline {
             }
         }
         stage('Ready for production?'){
+            steps{
             input(message: "Is it ready for production?", ok: "Go go go")
+            }
         }
         stage('Deploy to production'){
             agent {label 'linux'}

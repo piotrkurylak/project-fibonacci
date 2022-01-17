@@ -80,13 +80,13 @@ pipeline {
         }
     }
     post{
+        environment{
+            MAIL = credentials('jenkins-notifications')
+        }
         always{
             sh 'docker logout'
         }
         failure {
-            environment{
-                MAIL = credentials('jenkins-notifications')
-            }
             mail to: '${MAIL}',
                 subject: "Failure on build: ${env.BUILD_NUMBER}",
                 body: "I am sorry, something went wrong, check ${env.BUILD_URL}"

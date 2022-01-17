@@ -85,6 +85,9 @@ pipeline {
     post{
         always{
             sh 'docker logout'
+                mail to: '${MAIL}',
+                    subject: "Success on build: ${env.BUILD_NUMBER}",
+                    body: "Great, new build has been aplied corretly."
         }
         failure {
             mail to: '${MAIL}',

@@ -1,0 +1,10 @@
+/app directory is copied over prod image due to volumes 
+Volumes are not working in local docker-compose, change is not refreshing in the website
+Fix vulnerabilities in dependencies
+Add step for scanning images using snyk.
+Enhance code, convert commonjs modules -> ES6 modules, react router
+Add step for copying artifacts to S3 or JFROG.
+Add when conditions based on VSC branches.
+Add steps for deploying on 2 environments, production and staging. (for real)
+Add TLS to nginx in app? 
+PUT USERNAME IN ENV VAR. aws s3 cp /home/admin/jenkins/workspace/Project_Fibonacci_dev/${ENTRYPOINT} s3://${AWS_S3_BUCKET_NAME}/${ENTRYPOINT}

@@ -7,22 +7,22 @@ pipeline {
         MAIL = credentials('jenkins-notifications')
     }
     stages{
-        stage('Build react image for tests'){
+        stage('Build image for unit tests'){
             agent {label 'linux'}
             options{
                 timeout(time: 5, unit: "MINUTES")
             }
             steps{
-                sh 'docker build -t pkur1/project-fibonacci-react-tests:${BUILD_NUMBER} -f ./client/Dockerfile.dev ./client'
+                sh 'docker build -t pkur1/project-fibonacci-unit-tests:${BUILD_NUMBER} -f ./client/Dockerfile.dev ./client'
             }
         }
-        stage('Run react tests'){
+        stage('Run Unit tests'){
             agent {label 'linux'}
             options{
                 timeout(time: 2, unit: "MINUTES")
             }
             steps{
-                sh 'docker run -e CI=true pkur1/project-fibonacci-react-tests:${BUILD_NUMBER} npm run test'
+                sh 'docker run -e CI=true pkur1/project-fibonacci-unit-tests:${BUILD_NUMBER} npm run test'
         }
         }
         stage('Build prod images'){
@@ -95,13 +95,14 @@ pipeline {
                 AWS_S3_BUCKET_NAME = 'project-fibonacci-app'
                 ENTRYPOINT = 'docker-compose.yml'
                 AWS_DEFAULT_REGION = 'eu-west-1'
+                JENKINS_USERNAME = credentials('jenkins-username')
             }
             options{
                 timeout(time: 10, unit: "MINUTES")
             }
             steps{
                 sh '''
-                    aws s3 cp /home/admin/jenkins/workspace/Project_Fibonacci_dev/${ENTRYPOINT} s3://${AWS_S3_BUCKET_NAME}/${ENTRYPOINT}
+                    aws s3 cp /home/${JENKINS_USERNAME}/jenkins/workspace/Project_Fibonacci_dev/${ENTRYPOINT} s3://${AWS_S3_BUCKET_NAME}/${ENTRYPOINT}
                     aws elasticbeanstalk create-application-version --application-name ${EB_APP_NAME} --version-label $BUILD_NUMBER --source-bundle S3Bucket=$AWS_S3_BUCKET_NAME,S3Key=$ENTRYPOINT
                     aws elasticbeanstalk update-environment --application-name ${EB_APP_NAME} --environment-name ${EB_APP_ENVIRONMENT_NAME} --version-label $BUILD_NUMBER
                 '''
@@ -110,7 +111,9 @@ pipeline {
     }
     post{
         always{
+            node ('linux'){
             sh 'docker logout'
+            }
         }
         failure {
             mail to: '${MAIL}',
